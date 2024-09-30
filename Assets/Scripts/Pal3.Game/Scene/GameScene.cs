@@ -37,7 +37,7 @@ namespace Pal3.Game.Scene
     using UnityEngine;
     using Color = Core.Primitives.Color;
 
-    public sealed class Scene : SceneBase,
+    public sealed class GameScene : SceneBase,
         ICommandExecutor<SceneActivateObjectCommand>,
         ICommandExecutor<SceneMoveObjectCommand>,
         ICommandExecutor<SceneOpenDoorCommand>,
@@ -196,12 +196,12 @@ namespace Pal3.Game.Scene
             return SceneObjects;
         }
 
-        public Actor GetActor(int id)
+        public GameActor GetActor(int id)
         {
             return Actors.GetValueOrDefault(id);
         }
 
-        public Dictionary<int, Actor> GetAllActors()
+        public Dictionary<int, GameActor> GetAllActors()
         {
             return Actors;
         }
@@ -420,7 +420,7 @@ namespace Pal3.Game.Scene
 
         private void InitActorObjects(Color tintColor, Tilemap tilemap)
         {
-            foreach (Actor actorObject in Actors.Values)
+            foreach (GameActor actorObject in Actors.Values)
             {
                 CreateActorObject(actorObject, tintColor, tilemap);
             }
@@ -469,7 +469,7 @@ namespace Pal3.Game.Scene
             SceneObjects[id].Deactivate();
         }
 
-        private void CreateActorObject(Actor actor, Color tintColor, Tilemap tileMap)
+        private void CreateActorObject(GameActor actor, Color tintColor, Tilemap tileMap)
         {
             if (_actorEntities.ContainsKey(actor.Id)) return;
 
@@ -579,8 +579,7 @@ namespace Pal3.Game.Scene
 
         public void Execute(ActorActivateCommand command)
         {
-            if (!_actorEntities.ContainsKey(command.ActorId)) return;
-            IGameEntity actorGameEntity = _actorEntities[command.ActorId];
+            if (!_actorEntities.TryGetValue(command.ActorId, out IGameEntity actorGameEntity)) return;
             actorGameEntity.GetComponent<ActorController>().IsActive = command.IsActive == 1;
         }
 
